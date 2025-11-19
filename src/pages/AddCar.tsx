@@ -24,6 +24,7 @@ const schema = z.object({
     .refine((files) => files && files.length > 0, "صورة الشاسيه مطلوبة")
     .refine((files) => !files || (files[0] && files[0].type.startsWith("image/")), "يجب أن تكون الصورة من نوع Image"),
   description: z.string().min(10, "الشرح النصي مطلوب على الأقل 10 حروف"),
+  note: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -35,9 +36,25 @@ const AddCar = () => {
     defaultValues: { brand: "", model: "", year: 2020, enginePhoto: undefined, chassisPhoto: undefined, description: "" },
   });
 
-  const onSubmit = (values: FormValues) => {
-    toast.success("تم إضافة السيارة بنجاح");
-    navigate("/cars");
+  const onSubmit = async (values: FormValues) => {
+    const engineImage = values.enginePhoto?.[0]?.name;
+    const chassisImage = values.chassisPhoto?.[0]?.name;
+    try {
+      const payload = {
+        brand: values.brand,
+        model: values.model,
+        year: values.year,
+        engineImage,
+        chassisImage,
+        description: values.description,
+        note: values.note,
+      };
+      await (await import("@/api/cars")).createCar(payload);
+      toast.success("تم إضافة السيارة بنجاح");
+      navigate("/cars");
+    } catch {
+      toast.error("فشل حفظ السيارة، حاول لاحقًا");
+    }
   };
 
   return (
@@ -135,6 +152,20 @@ const AddCar = () => {
                       <FormLabel>شرح نص توضيحي</FormLabel>
                       <FormControl>
                         <Textarea rows={4} placeholder="اكتب وصفًا تفصيليًا" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="note"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>ملاحظات</FormLabel>
+                      <FormControl>
+                        <Textarea rows={3} placeholder="أي ملاحظات إضافية" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
