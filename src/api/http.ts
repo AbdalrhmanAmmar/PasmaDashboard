@@ -2,8 +2,10 @@
 import axios from "axios";
 
 // إنشاء instance للـ axios
+const isProd = typeof window !== "undefined" && window.location.hostname !== "localhost";
+const baseURL = isProd ? "https://pasmaserver.onrender.com" : "http://localhost:9000";
 const http = axios.create({
-  baseURL: "https://pasmaserver.onrender.com", // رابط الباكند لوكال
+  baseURL,
   withCredentials: true,            // مهم عشان session cookies
   headers: { "Content-Type": "application/json" },
 });

@@ -18,7 +18,10 @@ const Login = () => {
   // 1️⃣ when user clicks login
   const handleGoogleLogin = () => {
     toast.info("Redirecting to Google...");
-    window.location.href = "https://pasmaserver.onrender.com/auth/google";
+    const serverURL = window.location.hostname === "localhost"
+      ? "http://localhost:9000"
+      : "https://pasmaserver.onrender.com";
+    window.location.href = `${serverURL}/auth/google`;
   };
 
   // 2️⃣ when redirected back from Google and session cookie exists
