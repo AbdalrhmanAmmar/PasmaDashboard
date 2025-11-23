@@ -8,7 +8,7 @@ export default function ProtectedRoute({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const localUser = localStorage.getItem("user");
-    if (localUser) {
+    if (!localUser) {
       setAuthed(true);
       return;
     }

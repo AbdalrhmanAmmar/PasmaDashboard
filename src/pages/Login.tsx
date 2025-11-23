@@ -20,7 +20,7 @@ const Login = () => {
     toast.info("Redirecting to Google...");
     const serverURL = window.location.hostname === "localhost"
       ? "http://localhost:9000"
-      : "https://pasmaserver.onrender.com";
+      : "http://localhost:9000";
     window.location.href = `${serverURL}/auth/google`;
   };
 

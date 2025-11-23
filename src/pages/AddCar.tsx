@@ -51,11 +51,11 @@ const AddCar = () => {
       };
       await (await import("@/api/cars")).createCar(payload);
       toast.success("تم إضافة السيارة بنجاح");
-      navigate("/cars");
+      form.reset({ brand: "", model: "", year: 2020, enginePhoto: undefined, chassisPhoto: undefined, description: "", note: "" });
     } catch {
       toast.error("فشل حفظ السيارة، حاول لاحقًا");
-    }
-  };
+  }
+};
 
   return (
     <DashboardLayout>

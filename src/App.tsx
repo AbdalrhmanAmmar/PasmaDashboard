@@ -12,6 +12,8 @@ import Reports from "./pages/Reports";
 import AddActivity from "./pages/AddActivity";
 import Customers from "./pages/Customers";
 import Login from "./pages/Login";
+import EditCar from "./pages/EditCar";
+import CarDetails from "./pages/CarDetails";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
@@ -28,6 +30,8 @@ const App = () => (
           <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
           <Route path="/cars" element={<ProtectedRoute><Cars /></ProtectedRoute>} />
           <Route path="/cars/new" element={<AddCar />} />
+          <Route path="/cars/:id/edit" element={<ProtectedRoute><EditCar /></ProtectedRoute>} />
+          <Route path="/cars/:id" element={<ProtectedRoute><CarDetails /></ProtectedRoute>} />
           <Route path="/customers" element={<ProtectedRoute><Customers /></ProtectedRoute>} />
           <Route path="/maintenance" element={<ProtectedRoute><Maintenance /></ProtectedRoute>} />
           <Route path="/maintenance/new" element={<ProtectedRoute><AddFault /></ProtectedRoute>} />
