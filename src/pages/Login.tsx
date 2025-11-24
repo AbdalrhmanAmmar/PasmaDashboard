@@ -17,11 +17,8 @@ const Login = () => {
 
   // 1️⃣ when user clicks login
   const handleGoogleLogin = () => {
-    toast.info("Redirecting to Google...");
-    const serverURL = window.location.hostname === "localhost"
-      ? "https://api.car-tera.com"
-      : "https://api.car-tera.com";
-    window.location.href = `${serverURL}/auth/google`;
+    toast.info("جارٍ التحويل إلى Google", { description: "تسجيل دخول آمن" });
+    window.location.href = "https://api.car-tera.com/auth/google";
   };
 
   // 2️⃣ when redirected back from Google and session cookie exists
