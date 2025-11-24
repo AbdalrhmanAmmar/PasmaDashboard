@@ -19,8 +19,8 @@ const Login = () => {
   const handleGoogleLogin = () => {
     toast.info("Redirecting to Google...");
     const serverURL = window.location.hostname === "localhost"
-      ? "http://localhost:9000"
-      : "http://localhost:9000";
+      ? "https://api.car-tera.com"
+      : "https://api.car-tera.com";
     window.location.href = `${serverURL}/auth/google`;
   };
 
