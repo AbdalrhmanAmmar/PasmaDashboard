@@ -52,6 +52,13 @@ const CarDetails = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
+                <div className="mb-6">
+                  {car.carImage ? (
+                    <img src={car.carImage} alt="Car" className="w-full h-72 object-cover rounded-xl border" />
+                  ) : (
+                    <div className="h-72 rounded-xl bg-muted grid place-items-center text-muted-foreground">لا توجد صورة رئيسية</div>
+                  )}
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="rounded-xl border bg-card p-3">
                     <div className="flex items-center gap-2 mb-3">

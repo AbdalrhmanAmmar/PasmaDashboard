@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
-import { Car } from "lucide-react";
+import { Car, Loader2 } from "lucide-react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -23,6 +23,10 @@ const schema = z.object({
     .any()
     .refine((files) => files && files.length > 0, "صورة الشاسيه مطلوبة")
     .refine((files) => !files || (files[0] && files[0].type.startsWith("image/")), "يجب أن تكون الصورة من نوع Image"),
+  carImage: z
+    .any()
+    .optional()
+    .refine((files) => !files || !files[0] || files[0].type.startsWith("image/"), "يجب أن تكون الصورة من نوع Image"),
   description: z.string().min(10, "الشرح النصي مطلوب على الأقل 10 حروف"),
   note: z.string().optional(),
 });
@@ -33,29 +37,28 @@ const AddCar = () => {
   const navigate = useNavigate();
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { brand: "", model: "", year: 2020, enginePhoto: undefined, chassisPhoto: undefined, description: "" },
+    defaultValues: { brand: "", model: "", year: 2020, enginePhoto: undefined, chassisPhoto: undefined, carImage: undefined, description: "", note: "" },
   });
 
   const onSubmit = async (values: FormValues) => {
-    const engineImage = values.enginePhoto?.[0]?.name;
-    const chassisImage = values.chassisPhoto?.[0]?.name;
     try {
-      const payload = {
-        brand: values.brand,
-        model: values.model,
-        year: values.year,
-        engineImage,
-        chassisImage,
-        description: values.description,
-        note: values.note,
-      };
-      await (await import("@/api/cars")).createCar(payload);
+      const fd = new FormData();
+      fd.append("brand", String(values.brand));
+      fd.append("model", String(values.model));
+      fd.append("year", String(values.year));
+      fd.append("description", String(values.description));
+      if (values.note) fd.append("note", String(values.note));
+      if (values.enginePhoto?.[0]) fd.append("engineImage", values.enginePhoto[0]);
+      if (values.chassisPhoto?.[0]) fd.append("chassisImage", values.chassisPhoto[0]);
+      if (values.carImage?.[0]) fd.append("carImage", values.carImage[0]);
+      const { createCarMultipart } = await import("@/api/cars");
+      await createCarMultipart(fd);
       toast.success("تم إضافة السيارة بنجاح");
-      form.reset({ brand: "", model: "", year: 2020, enginePhoto: undefined, chassisPhoto: undefined, description: "", note: "" });
+      form.reset({ brand: "", model: "", year: 2020, enginePhoto: undefined, chassisPhoto: undefined, carImage: undefined, description: "", note: "" });
     } catch {
       toast.error("فشل حفظ السيارة، حاول لاحقًا");
-  }
-};
+    }
+  };
 
   return (
     <DashboardLayout>
@@ -129,19 +132,32 @@ const AddCar = () => {
                     )}
                   />
 
-                  <FormField
-                    control={form.control}
-                    name="chassisPhoto"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>صورة الشاسيه</FormLabel>
-                        <FormControl>
-                          <Input type="file" accept="image/*" onChange={(e) => field.onChange(e.target.files)} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                <FormField
+                  control={form.control}
+                  name="chassisPhoto"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>صورة الشاسيه</FormLabel>
+                      <FormControl>
+                        <Input type="file" accept="image/*" onChange={(e) => field.onChange(e.target.files)} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="carImage"
+                  render={({ field }) => (
+                    <FormItem className="md:col-span-2">
+                      <FormLabel>صورة السيارة</FormLabel>
+                      <FormControl>
+                        <Input type="file" accept="image/*" onChange={(e) => field.onChange(e.target.files)} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 </div>
 
                 <FormField
@@ -174,7 +190,10 @@ const AddCar = () => {
 
                 <div className="flex justify-end gap-2">
                   <Button type="button" variant="outline" onClick={() => navigate("/cars")}>رجوع</Button>
-                  <Button type="submit">حفظ</Button>
+                  <Button type="submit" disabled={form.formState.isSubmitting}>
+                    {form.formState.isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
+                    {form.formState.isSubmitting ? "جاري الحفظ" : "حفظ"}
+                  </Button>
                 </div>
               </form>
             </Form>

@@ -9,6 +9,7 @@ export type CarDoc = {
   note?: string;
   engineImage?: string;
   chassisImage?: string;
+  carImage?: string;
 };
 
 export const listCars = async (): Promise<CarDoc[]> => {
@@ -40,5 +41,12 @@ export const updateCarMultipart = async (id: string, form: FormData) => {
 
 export const createCar = async (payload: Partial<CarDoc>) => {
   const { data } = await http.post(`/cars`, payload);
+  return data?.data;
+};
+
+export const createCarMultipart = async (form: FormData) => {
+  const { data } = await http.post(`/cars`, form, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
   return data?.data;
 };

@@ -10,6 +10,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "@/components/ui/sonner";
 import { getCar, updateCarMultipart } from "@/api/cars";
+import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const schema = z.object({
@@ -20,6 +21,7 @@ const schema = z.object({
   note: z.string().optional(),
   engineImage: z.any().optional(),
   chassisImage: z.any().optional(),
+  carImage: z.any().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -31,7 +33,7 @@ const EditCar = () => {
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { brand: "", model: "", year: 2020, description: "", note: "", engineImage: undefined, chassisImage: undefined },
+    defaultValues: { brand: "", model: "", year: 2020, description: "", note: "", engineImage: undefined, chassisImage: undefined, carImage: undefined },
   });
 
   useEffect(() => {
@@ -61,6 +63,7 @@ const EditCar = () => {
       if (values.note) fd.append("note", String(values.note));
       if (values.engineImage?.[0]) fd.append("engineImage", values.engineImage[0]);
       if (values.chassisImage?.[0]) fd.append("chassisImage", values.chassisImage[0]);
+      if (values.carImage?.[0]) fd.append("carImage", values.carImage[0]);
       await updateCarMultipart(id, fd);
       toast.success("تم تحديث السيارة", { description: `${values.brand} ${values.model}` });
       navigate("/cars");
@@ -92,6 +95,19 @@ const EditCar = () => {
                           <FormLabel>الماركة</FormLabel>
                           <FormControl>
                             <Input placeholder="مثال: Toyota" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="carImage"
+                      render={({ field }) => (
+                        <FormItem className="md:col-span-2">
+                          <FormLabel>تحديث صورة السيارة</FormLabel>
+                          <FormControl>
+                            <Input type="file" accept="image/*" onChange={(e) => field.onChange(e.target.files)} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -178,7 +194,10 @@ const EditCar = () => {
                   </div>
                   <div className="flex justify-end gap-2">
                     <Button type="button" variant="outline" onClick={() => navigate(-1)}>إلغاء</Button>
-                    <Button type="submit">حفظ التعديلات</Button>
+                    <Button type="submit" disabled={form.formState.isSubmitting}>
+                      {form.formState.isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
+                      {form.formState.isSubmitting ? "جاري الحفظ" : "حفظ التعديلات"}
+                    </Button>
                   </div>
                 </form>
               </Form>
