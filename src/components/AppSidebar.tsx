@@ -29,16 +29,16 @@ export function AppSidebar() {
     <Sidebar side="right" className="border-l border-sidebar-border">
       <SidebarContent>
         {/* Logo */}
-        <div className="px-6 py-6 border-b border-sidebar-border">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl  flex items-center justify-center shadow-lg">
+        <div className="px-6 py-6 border-b border-sidebar-border ">
+          <div className="flex items-center justify-center gap-3">
+            <div className="w-10 h-10 rounded-xl  flex items-center justify-start shadow-lg">
              
-                <img src="/Image/Pasma.png" alt="" />
+                <img src="/Image/car-tera.jpg" alt="" />
              
             </div>
             {open && (
               <div>
-                <h2 className="text-lg font-bold text-sidebar-foreground ">Pasma dashboard</h2>
+                <h2 className="text-lg text-start font-bold text-sidebar-foreground ">Car Tera  </h2>
               </div>
             )}
           </div>
