@@ -81,12 +81,10 @@ const Cars = () => {
             <Button onClick={() => navigate("/cars/new")}>إضافة سيارة جديدة</Button>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-6 gap-3">
-            <Input placeholder="بحث نصي" value={query} onChange={(e) => setQuery(e.target.value)} />
             <Input placeholder="الماركة" value={brand} onChange={(e) => setBrand(e.target.value)} />
             <Input placeholder="الموديل" value={model} onChange={(e) => setModel(e.target.value)} />
             <Input type="number" placeholder="السنة" value={year} onChange={(e) => setYear(e.target.value)} />
-            <Input type="number" placeholder="من سنة" value={yearMin} onChange={(e) => setYearMin(e.target.value)} />
-            <Input type="number" placeholder="إلى سنة" value={yearMax} onChange={(e) => setYearMax(e.target.value)} />
+   
             <div className="lg:col-span-2 flex items-center gap-2">
               <Select value={sort} onValueChange={setSort}>
                 <SelectTrigger className="w-full">
