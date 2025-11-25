@@ -12,9 +12,27 @@ export type CarDoc = {
   carImage?: string;
 };
 
-export const listCars = async (): Promise<CarDoc[]> => {
-  const { data } = await http.get("/cars");
+export const listCars = async (q?: string): Promise<CarDoc[]> => {
+  const { data } = await http.get("/cars", { params: q ? { q } : undefined });
   return data?.data || [];
+};
+
+export type CarsQuery = {
+  q?: string;
+  brand?: string;
+  model?: string;
+  year?: number;
+  yearMin?: number;
+  yearMax?: number;
+  sort?: string;
+  fields?: string;
+  page?: number;
+  limit?: number;
+};
+
+export const listCarsAdvanced = async (params: CarsQuery): Promise<{ data: CarDoc[]; meta?: any }> => {
+  const { data } = await http.get("/cars", { params });
+  return { data: data?.data || [], meta: data?.meta };
 };
 
 export const getCar = async (id: string): Promise<CarDoc> => {

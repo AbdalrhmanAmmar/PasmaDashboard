@@ -9,6 +9,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { toast } from "@/components/ui/sonner";
 
 const schema = z.object({
@@ -17,11 +18,11 @@ const schema = z.object({
   year: z.coerce.number().min(1950, "سنة الاصدار غير صحيحة").max(2100, "سنة الاصدار غير صحيحة"),
   enginePhoto: z
     .any()
-    .refine((files) => files && files.length > 0, "صورة المحرك مطلوبة")
+    .optional()
     .refine((files) => !files || (files[0] && files[0].type.startsWith("image/")), "يجب أن تكون الصورة من نوع Image"),
   chassisPhoto: z
     .any()
-    .refine((files) => files && files.length > 0, "صورة الشاسيه مطلوبة")
+    .optional()
     .refine((files) => !files || (files[0] && files[0].type.startsWith("image/")), "يجب أن تكون الصورة من نوع Image"),
   carImage: z
     .any()
@@ -39,6 +40,7 @@ const AddCar = () => {
     resolver: zodResolver(schema),
     defaultValues: { brand: "", model: "", year: 2020, enginePhoto: undefined, chassisPhoto: undefined, carImage: undefined, description: "", note: "" },
   });
+  const [fileKey, setFileKey] = useState(0);
 
   const onSubmit = async (values: FormValues) => {
     try {
@@ -51,11 +53,19 @@ const AddCar = () => {
       if (values.enginePhoto?.[0]) fd.append("engineImage", values.enginePhoto[0]);
       if (values.chassisPhoto?.[0]) fd.append("chassisImage", values.chassisPhoto[0]);
       if (values.carImage?.[0]) fd.append("carImage", values.carImage[0]);
+      
+      // تأكد من أن هذا المسار (@/api/cars) صحيح ومتاح
       const { createCarMultipart } = await import("@/api/cars");
       await createCarMultipart(fd);
+      
       toast.success("تم إضافة السيارة بنجاح");
+      
+      // إعادة تعيين النموذج
       form.reset({ brand: "", model: "", year: 2020, enginePhoto: undefined, chassisPhoto: undefined, carImage: undefined, description: "", note: "" });
-    } catch {
+      // تحديث المفتاح لفرض إعادة رسم حقول الملفات ومسحها من واجهة المستخدم
+      setFileKey((k) => k + 1);
+    } catch (error) {
+      console.error("Submission Error:", error);
       toast.error("فشل حفظ السيارة، حاول لاحقًا");
     }
   };
@@ -72,7 +82,7 @@ const AddCar = () => {
               بيانات السيارة
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="relative">
             <Form {...form}>
               <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -83,7 +93,7 @@ const AddCar = () => {
                       <FormItem>
                         <FormLabel>الماركة</FormLabel>
                         <FormControl>
-                          <Input placeholder="مثال: Toyota" {...field} />
+                          <Input placeholder="مثال: Toyota" disabled={form.formState.isSubmitting} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -97,7 +107,7 @@ const AddCar = () => {
                       <FormItem>
                         <FormLabel>الموديل</FormLabel>
                         <FormControl>
-                          <Input placeholder="مثال: Camry" {...field} />
+                          <Input placeholder="مثال: Camry" disabled={form.formState.isSubmitting} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -111,13 +121,14 @@ const AddCar = () => {
                       <FormItem>
                         <FormLabel>سنة الإصدار</FormLabel>
                         <FormControl>
-                          <Input type="number" min={1950} max={2100} placeholder="مثال: 2020" {...field} />
+                          <Input type="number" min={1950} max={2100} placeholder="مثال: 2020" disabled={form.formState.isSubmitting} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
 
+                  {/* التعديل في حقل الملف الأول */}
                   <FormField
                     control={form.control}
                     name="enginePhoto"
@@ -125,39 +136,60 @@ const AddCar = () => {
                       <FormItem>
                         <FormLabel>صورة المحرك</FormLabel>
                         <FormControl>
-                          <Input type="file" accept="image/*" onChange={(e) => field.onChange(e.target.files)} />
+                          <Input 
+                            key={`engine-${fileKey}`} 
+                            type="file" 
+                            accept="image/*" 
+                            disabled={form.formState.isSubmitting} 
+                            onChange={(e) => field.onChange(e.target.files || undefined)} // تم التعديل هنا
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
 
-                <FormField
-                  control={form.control}
-                  name="chassisPhoto"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>صورة الشاسيه</FormLabel>
-                      <FormControl>
-                        <Input type="file" accept="image/*" onChange={(e) => field.onChange(e.target.files)} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="carImage"
-                  render={({ field }) => (
-                    <FormItem className="md:col-span-2">
-                      <FormLabel>صورة السيارة</FormLabel>
-                      <FormControl>
-                        <Input type="file" accept="image/*" onChange={(e) => field.onChange(e.target.files)} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  {/* التعديل في حقل الملف الثاني */}
+                  <FormField
+                    control={form.control}
+                    name="chassisPhoto"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>صورة الشاسيه</FormLabel>
+                        <FormControl>
+                          <Input 
+                            key={`chassis-${fileKey}`} 
+                            type="file" 
+                            accept="image/*" 
+                            disabled={form.formState.isSubmitting} 
+                            onChange={(e) => field.onChange(e.target.files || undefined)} // تم التعديل هنا
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  {/* التعديل في حقل الملف الثالث */}
+                  <FormField
+                    control={form.control}
+                    name="carImage"
+                    render={({ field }) => (
+                      <FormItem className="md:col-span-2">
+                        <FormLabel>صورة السيارة</FormLabel>
+                        <FormControl>
+                          <Input 
+                            key={`car-${fileKey}`} 
+                            type="file" 
+                            accept="image/*" 
+                            disabled={form.formState.isSubmitting} 
+                            onChange={(e) => field.onChange(e.target.files || undefined)} // تم التعديل هنا
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
 
                 <FormField
@@ -167,7 +199,7 @@ const AddCar = () => {
                     <FormItem>
                       <FormLabel>شرح نص توضيحي</FormLabel>
                       <FormControl>
-                        <Textarea rows={4} placeholder="اكتب وصفًا تفصيليًا" {...field} />
+                        <Textarea rows={4} placeholder="اكتب وصفًا تفصيليًا" disabled={form.formState.isSubmitting} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -181,7 +213,7 @@ const AddCar = () => {
                     <FormItem>
                       <FormLabel>ملاحظات</FormLabel>
                       <FormControl>
-                        <Textarea rows={3} placeholder="أي ملاحظات إضافية" {...field} />
+                        <Textarea rows={3} placeholder="أي ملاحظات إضافية" disabled={form.formState.isSubmitting} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
