@@ -6,7 +6,9 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { FileText, PlusCircle, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { listReports, type ReportDoc } from "@/api/reports";
+import { listReports, deleteReport, type ReportDoc } from "@/api/reports";
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter, AlertDialogCancel } from "@/components/ui/alert-dialog";
+import { Pencil, Trash2 } from "lucide-react";
 
 const Reports = () => {
   const navigate = useNavigate();
@@ -17,6 +19,7 @@ const Reports = () => {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [meta, setMeta] = useState<{ page: number; limit: number; total: number; pages: number } | undefined>();
+  const [toDelete, setToDelete] = useState<ReportDoc | null>(null);
 
   const fetchReports = () => {
     setLoading(true);
@@ -29,6 +32,15 @@ const Reports = () => {
     const t = setTimeout(fetchReports, 300);
     return () => clearTimeout(t);
   }, [q, sort, page, limit]);
+
+  const confirmDelete = async () => {
+    if (!toDelete) return;
+    try {
+      await deleteReport(toDelete._id);
+      setToDelete(null);
+      fetchReports();
+    } catch {}
+  };
 
   return (
     <DashboardLayout>
@@ -88,6 +100,14 @@ const Reports = () => {
                     </CardHeader>
                     <CardContent>
                       <p className="text-sm text-muted-foreground line-clamp-3">{r.description || ""}</p>
+                      <div className="mt-3 flex items-center gap-2">
+                        <Button variant="outline" size="sm" onClick={() => navigate(`/reports/${r._id}/edit`)}>
+                          <Pencil className="w-4 h-4" /> تعديل
+                        </Button>
+                        <Button variant="destructive" size="sm" onClick={() => setToDelete(r)}>
+                          <Trash2 className="w-4 h-4" /> حذف
+                        </Button>
+                      </div>
                     </CardContent>
                   </Card>
                 ))}
@@ -102,6 +122,18 @@ const Reports = () => {
             </div>
           </CardContent>
         </Card>
+        <AlertDialog open={!!toDelete} onOpenChange={(o) => !o && setToDelete(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>تأكيد حذف التقرير</AlertDialogTitle>
+            </AlertDialogHeader>
+            <div className="text-muted-foreground">سيتم حذف تقرير "{toDelete?.title}" ولا يمكن التراجع.</div>
+            <AlertDialogFooter>
+              <AlertDialogCancel>إلغاء</AlertDialogCancel>
+              <Button variant="destructive" onClick={confirmDelete}>حذف</Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </DashboardLayout>
   );

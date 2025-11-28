@@ -9,6 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/components/ui/sonner";
+import { createReport } from "@/api/reports";
 
 const schema = z.object({
   title: z.string().min(3, "العنوان مطلوب"),
@@ -21,9 +22,14 @@ const AddActivity = () => {
   const navigate = useNavigate();
   const form = useForm<FormValues>({ resolver: zodResolver(schema), defaultValues: { title: "", content: "" } });
 
-  const onSubmit = (values: FormValues) => {
-    toast.success("تم إضافة النشاط/التقرير بنجاح");
-    navigate("/reports");
+  const onSubmit = async (values: FormValues) => {
+    try {
+      await createReport({ title: values.title, description: values.content });
+      toast.success("تم إضافة النشاط/التقرير بنجاح");
+      navigate("/reports");
+    } catch {
+      toast.error("تعذر إضافة التقرير");
+    }
   };
 
   return (
@@ -44,7 +50,7 @@ const AddActivity = () => {
                     <FormItem>
                       <FormLabel>عنوان التقرير</FormLabel>
                       <FormControl>
-                        <Input placeholder="اكتب عنوانًا واضحًا" {...field} />
+                        <Input placeholder="اكتب عنوانًا واضحًا" disabled={form.formState.isSubmitting} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -58,7 +64,7 @@ const AddActivity = () => {
                     <FormItem>
                       <FormLabel>محتوى التقرير أو الفورم</FormLabel>
                       <FormControl>
-                        <Textarea rows={6} placeholder="اكتب التفاصيل كاملة" {...field} />
+                        <Textarea rows={6} placeholder="اكتب التفاصيل كاملة" disabled={form.formState.isSubmitting} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -67,7 +73,7 @@ const AddActivity = () => {
 
                 <div className="flex justify-end gap-2">
                   <Button type="button" variant="outline" onClick={() => navigate("/reports")}>رجوع</Button>
-                  <Button type="submit">حفظ</Button>
+                  <Button type="submit" disabled={form.formState.isSubmitting}>{form.formState.isSubmitting ? "جاري الحفظ" : "حفظ"}</Button>
                 </div>
               </form>
             </Form>
