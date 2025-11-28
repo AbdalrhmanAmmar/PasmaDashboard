@@ -6,7 +6,7 @@ const isProd = typeof window !== "undefined" && window.location.hostname !== "lo
 const baseURL = isProd ? "https://api.car-tera.com" : "https://api.car-tera.com";
 const http = axios.create({
   baseURL,
-  withCredentials: true,            // مهم عشان session cookies
+  withCredentials: true, // مهم عشان session cookies
   headers: { "Content-Type": "application/json" },
 });
 
@@ -31,7 +31,7 @@ http.interceptors.response.use(
       window.location.href = "/login"; // إعادة التوجيه للصفحة Login
     }
     return Promise.reject(error);
-  },
+  }
 );
 
 export default http;
