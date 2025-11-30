@@ -3,7 +3,7 @@ import axios from "axios";
 
 // إنشاء instance للـ axios
 const isProd = typeof window !== "undefined" && window.location.hostname !== "localhost";
-const baseURL = isProd ? "http://localhost:9000" : "http://localhost:9000";
+const baseURL = isProd ? "https://api.car-tera.com" : "https://api.car-tera.com";
 const http = axios.create({
   baseURL,
   withCredentials: true, // مهم عشان session cookies
