@@ -14,6 +14,7 @@ import Customers from "./pages/Customers";
 import Login from "./pages/Login";
 import EditCar from "./pages/EditCar";
 import EditReport from "./pages/EditReport";
+import ReportDetails from "./pages/ReportDetails";
 import CarDetails from "./pages/CarDetails";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -38,6 +39,7 @@ const App = () => (
           <Route path="/maintenance/new" element={<ProtectedRoute><AddFault /></ProtectedRoute>} />
           <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
           <Route path="/reports/new" element={<ProtectedRoute><AddActivity /></ProtectedRoute>} />
+          <Route path="/reports/:id" element={<ProtectedRoute><ReportDetails /></ProtectedRoute>} />
           <Route path="/reports/:id/edit" element={<ProtectedRoute><EditReport /></ProtectedRoute>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

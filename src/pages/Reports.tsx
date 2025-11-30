@@ -94,7 +94,7 @@ const Reports = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 {reports.map((r) => (
-                  <Card key={r._id} className="border">
+                  <Card key={r._id} className="border cursor-pointer" onClick={() => navigate(`/reports/${r._id}`)}>
                     <CardHeader>
                       <CardTitle className="text-lg truncate">{r.title}</CardTitle>
                     </CardHeader>
